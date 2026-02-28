@@ -1481,8 +1481,18 @@
       chan.onmessage = e => {
         const data = JSON.parse(e.data);
         if (isHost) {
-          if (data.type === 'input') {
-            p2_input = data.input;
+          if (data.type === 'guest_state') {
+            // Trust the guest's position, aim, and movement state exactly
+            if (p2 && !p2.dead) {
+              p2.x = data.state.x;
+              p2.y = data.state.y;
+              p2.vx = data.state.vx;
+              p2.vy = data.state.vy;
+              p2.facing = data.state.facing;
+              p2.aimAngle = data.state.aimAngle;
+              p2.weapon = data.state.weapon;
+            }
+            p2_input = data.input; // Used for things like jetpack visuals/shooting
           } else if (data.type === 'restart_request') {
             restartGame();
           }
@@ -1513,12 +1523,26 @@
     }
 
     function applyServerState(state) {
-      function applyP(local, remote) {
+      function applyP(local, remote, isMe) {
         if (!local || !remote) return;
-        Object.assign(local, remote);
+
+        if (isMe) {
+          // If it's me (the Guest), IGNORE the host's position/velocity to stop lag
+          // Only accept health, ammo, kills, and death status
+          local.hp = remote.hp;
+          local.fuel = remote.fuel;
+          local.dead = remote.dead;
+          local.kills = remote.kills;
+          local.ammo = remote.ammo;
+          local.flashTimer = remote.flashTimer;
+        } else {
+          // If it's the other player, accept everything
+          Object.assign(local, remote);
+        }
       }
-      applyP(p1, state.p1);
-      applyP(p2, state.p2);
+      applyP(p1, state.p1, false); // Host is p1, so Guest accepts all of it
+      applyP(p2, state.p2, true);  // Guest is p2, so Guest intercepts p2 state to prevent rubberbanding
+
       bullets = state.bullets || [];
       if (state.picks) state.picks.forEach((v, i) => { if (weaponPickups[i]) weaponPickups[i].taken = !!v; });
       if (state.hps) state.hps.forEach((v, i) => { if (healthPacks[i]) healthPacks[i].taken = !!v; });
@@ -1560,7 +1584,10 @@
         };
 
         updatePlayer(p1, p2);
+        // We still run updatePlayer for p2 so shooting and collisions happen,
+        // but its position is overridden every tick by the network (guest_state)
         updatePlayer(p2, p1);
+
         updateBullets();
         updatePickups();
         updateParticles();
@@ -1581,24 +1608,28 @@
           rtcChan.send(JSON.stringify(state));
         }
       } else {
-        // --- Client-Side Prediction for Guest ---
+        // --- MUTUAL CLIENT AUTHORITY FOR GUEST ---
         const myPlayer = p2;
         const otherPlayer = p1;
 
-        // Predict local movement instantly
+        // Predict local movement instantly with 100% authority
         const localInput = getMyInput();
         const originalIsKey = window.isKey;
         window.isKey = (p, action) => {
           if (p.id === 2) return !!localInput[action];
-          return false; // Don't predict other player
+          return false; // Host player moves via applyServerState
         };
 
         updatePlayer(myPlayer, otherPlayer);
         window.isKey = originalIsKey;
 
-        // Send input to host
+        // Send EXACT state and input to host
         if (rtcChan && rtcChan.readyState === 'open') {
-          rtcChan.send(JSON.stringify({ type: 'input', input: localInput }));
+          const myState = {
+            x: myPlayer.x, y: myPlayer.y, vx: myPlayer.vx, vy: myPlayer.vy,
+            facing: myPlayer.facing, aimAngle: myPlayer.aimAngle, weapon: myPlayer.weapon
+          };
+          rtcChan.send(JSON.stringify({ type: 'guest_state', state: myState, input: localInput }));
         }
 
         updateParticles();
