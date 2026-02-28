@@ -458,8 +458,8 @@
         </div>
       </div>
       <div id="controls">
-        <div class="ctrl-box">WASD: Move | W: Jump<br>E: Jetpack | F: Shoot | R: Reload</div>
-        <div class="ctrl-box">WASD: Move | W: Jump<br>E: Jetpack | F: Shoot | R: Reload</div>
+        <div class="ctrl-box">←/→: Move | ↑: Jump<br>D: Jetpack | W: Shoot | A: Reload | S: Swap Weapon</div>
+        <div class="ctrl-box">←/→: Move | ↑: Jump<br>D: Jetpack | W: Shoot | A: Reload | S: Swap Weapon</div>
       </div>
     </div>
     /div>
@@ -486,7 +486,7 @@
       </div>
       <div class="ctrl-card p1-ctrl" style="width:100%">
         <div class="ctrl-title">CONTROLS (HOST & JOINER)</div>
-        W/A/S/D - Move & Jump<br>E - Jetpack<br>F - Shoot<br>R - Reload<br>Q - Swap Weapon
+        ←/→/↑ - Move & Jump<br>D - Jetpack<br>W - Shoot<br>A - Reload<br>S - Swap Weapon
       </div>
     </div>
   </div>
@@ -501,7 +501,7 @@
     const GRAVITY = 0.45;
     const TERMINAL_VEL = 14;
     const JUMP_FORCE = -10;
-    const MOVE_SPEED = 3.5;
+    const MOVE_SPEED = 2.8;
     const JETPACK_FORCE = 0.55;
     const MAX_FUEL = 100;
     const FUEL_DRAIN = 0.8;
@@ -634,12 +634,12 @@
     let frame = 0;
 
     function initPlayers() {
-      // Both players now use WASD/E/F for P2P play
+      // Both players now use Arrow Keys and WASD for actions
       p1 = createPlayer(1, 120, 450, '#4ecdc4', {
-        left: 'KeyA', right: 'KeyD', jump: 'KeyW', jetpack: 'KeyE', fire: 'KeyF', reload: 'KeyR', weapon: 'KeyQ'
+        left: 'ArrowLeft', right: 'ArrowRight', jump: 'ArrowUp', jetpack: 'KeyD', fire: 'KeyW', reload: 'KeyA', weapon: 'KeyS'
       }, 1);
       p2 = createPlayer(2, 760, 450, '#ff6b6b', {
-        left: 'KeyA', right: 'KeyD', jump: 'KeyW', jetpack: 'KeyE', fire: 'KeyF', reload: 'KeyR', weapon: 'KeyQ'
+        left: 'ArrowLeft', right: 'ArrowRight', jump: 'ArrowUp', jetpack: 'KeyD', fire: 'KeyW', reload: 'KeyA', weapon: 'KeyS'
       }, -1);
       p1.aimAngle = 0;
       p2.aimAngle = Math.PI;
@@ -1632,6 +1632,8 @@
           rtcChan.send(JSON.stringify({ type: 'guest_state', state: myState, input: localInput }));
         }
 
+        // Fix guest pickup bug: Guest processes its own pickups so it switches weapons immediately
+        updatePickups();
         updateParticles();
       }
 
