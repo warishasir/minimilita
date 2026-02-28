@@ -1096,134 +1096,74 @@
     function drawPickups() {
       const t = frame * 0.05;
 
-      // ── Weapon crates ──────────────────────────────────────────────
+      // ── Simplified Weapon Icons ──────────────────────────────────────
       for (const pk of weaponPickups) {
         if (pk.taken) continue;
         const bob = Math.sin(t + pk.x * 0.05) * 4;
-        const spin = Math.sin(t * 1.2 + pk.x * 0.05) * 0.18;
+        const spin = Math.sin(t * 1.2 + pk.x * 0.05) * 0.15;
         const wep = WEAPONS[pk.type];
-        const W2 = 28, H2 = 32;   // card half-sizes
 
         ctx.save();
         ctx.translate(pk.x, pk.y + bob);
 
-        // Outer pulsing aura
-        const auraR = 22 + Math.sin(t * 2) * 4;
+        // Clean pulsing aura
+        const auraR = 18 + Math.sin(t * 2) * 3;
         const aura = ctx.createRadialGradient(0, 0, 4, 0, 0, auraR);
-        aura.addColorStop(0, wep.color + '55');
+        aura.addColorStop(0, wep.color + '66');
         aura.addColorStop(1, 'transparent');
         ctx.fillStyle = aura;
         ctx.beginPath(); ctx.arc(0, 0, auraR, 0, Math.PI * 2); ctx.fill();
 
-        // Card shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.35)';
-        ctx.beginPath(); ctx.roundRect(-W2 + 3, -H2 + 3, W2 * 2, H2 * 2, 6); ctx.fill();
-
-        // Card body gradient
-        const cg = ctx.createLinearGradient(0, -H2, 0, H2);
-        cg.addColorStop(0, '#1a2540');
-        cg.addColorStop(1, '#0d1520');
-        ctx.fillStyle = cg;
-        ctx.beginPath(); ctx.roundRect(-W2, -H2, W2 * 2, H2 * 2, 6); ctx.fill();
-
-        // Colored top stripe
-        const stripe = ctx.createLinearGradient(-W2, -H2, W2, -H2);
-        stripe.addColorStop(0, wep.color + 'bb');
-        stripe.addColorStop(0.5, wep.color);
-        stripe.addColorStop(1, wep.color + 'bb');
-        ctx.fillStyle = stripe;
-        ctx.beginPath(); ctx.roundRect(-W2, -H2, W2 * 2, 10, [6, 6, 0, 0]); ctx.fill();
-
-        // Card border glow
-        ctx.strokeStyle = wep.color;
-        ctx.lineWidth = 1.5;
-        ctx.globalAlpha = 0.7 + Math.sin(t * 3) * 0.3;
-        ctx.beginPath(); ctx.roundRect(-W2, -H2, W2 * 2, H2 * 2, 6); ctx.stroke();
-        ctx.globalAlpha = 1;
-
-        // Big weapon emoji / icon  (spin it)
+        // Floating icon
         ctx.save();
         ctx.rotate(spin);
         const ICONS = {
           shotgun: '🔫', sniper: '🎯', machinegun: '⚙️',
           rocketlauncher: '🚀', flamethrower: '🔥'
         };
-        ctx.font = '20px serif';
+        ctx.font = '24px serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(ICONS[pk.type] || '?', 0, 2);
+        ctx.fillText(ICONS[pk.type] || '?', 0, 0);
         ctx.restore();
 
-        // Weapon name label
+        // Minimalist label
         ctx.fillStyle = wep.color;
-        ctx.font = 'bold 7px Bangers';
-        ctx.letterSpacing = '1px';
+        ctx.font = 'bold 8px Bangers';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        const label = {
-          pistol: 'PISTOL', shotgun: 'SHOTGUN', sniper: 'SNIPER',
-          machinegun: 'M.GUN', rocketlauncher: 'ROCKET', flamethrower: 'FLAME'
-        };
-        ctx.fillText(label[pk.type] || pk.type.toUpperCase(), 0, H2 - 10);
-
-        // Corner stars
-        ctx.fillStyle = 'rgba(255,255,255,0.4)';
-        ctx.font = '6px serif';
-        ctx.fillText('★', -W2 + 5, -H2 + 2);
-        ctx.fillText('★', W2 - 5, -H2 + 2);
+        ctx.fillText(wep.name, 0, 15);
 
         ctx.restore();
       }
 
-      // ── Health packs ───────────────────────────────────────────────
+      // ── Simplified Health Packs ───────────────────────────────────────
       for (const hp of healthPacks) {
         if (hp.taken) continue;
         const bob = Math.sin(t * 1.4 + hp.x * 0.03) * 4;
-        const glow = 0.6 + Math.sin(t * 3) * 0.4;
-        const W2 = 18, H2 = 18;
+        const glow = 0.5 + Math.sin(t * 3) * 0.3;
 
         ctx.save();
         ctx.translate(hp.x, hp.y + bob);
 
-        // Pulsing aura
-        const aura = ctx.createRadialGradient(0, 0, 2, 0, 0, 22);
+        // Clean aura
+        const aura = ctx.createRadialGradient(0, 0, 2, 0, 0, 20);
         aura.addColorStop(0, `rgba(68,255,136,${glow * 0.4})`);
         aura.addColorStop(1, 'transparent');
         ctx.fillStyle = aura;
-        ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2); ctx.fill();
 
-        // Shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
-        ctx.beginPath(); ctx.roundRect(-W2 + 2, -H2 + 2, W2 * 2, H2 * 2, 5); ctx.fill();
-
-        // Body
-        const bg = ctx.createLinearGradient(0, -H2, 0, H2);
-        bg.addColorStop(0, '#1a3a22'); bg.addColorStop(1, '#0d2015');
-        ctx.fillStyle = bg;
-        ctx.beginPath(); ctx.roundRect(-W2, -H2, W2 * 2, H2 * 2, 5); ctx.fill();
-
-        // Border
+        // Simplified Medkit
+        ctx.fillStyle = '#1a3a22';
+        ctx.beginPath(); ctx.roundRect(-12, -12, 24, 24, 4); ctx.fill();
         ctx.strokeStyle = `rgba(68,255,136,${glow})`;
         ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.roundRect(-W2, -H2, W2 * 2, H2 * 2, 5); ctx.stroke();
+        ctx.stroke();
 
-        // Red cross background circle
-        ctx.fillStyle = '#cc2222';
-        ctx.beginPath(); ctx.arc(0, -2, 10, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#ff4444';
-        ctx.beginPath(); ctx.arc(0, -2, 8, 0, Math.PI * 2); ctx.fill();
-
-        // White cross
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(-2, -9, 4, 14);
-        ctx.fillRect(-7, -4, 14, 4);
-
-        // +HP label
-        ctx.fillStyle = '#44ff88';
-        ctx.font = 'bold 7px Bangers';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText('+HP', 0, H2 - 1);
+        // White Cross
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(-2, -7, 4, 14);
+        ctx.fillRect(-7, -2, 14, 4);
 
         ctx.restore();
       }
@@ -1234,177 +1174,69 @@
       const cx = p.x + p.w / 2;
       const cy = p.y + p.h / 2;
       const flash = p.flashTimer > 0 && Math.floor(p.flashTimer / 2) % 2 === 0;
-      const f = p.facing;          // 1=right, -1=left
+      const f = p.facing;
       const ang = p.aimAngle;
       const isP1 = p.id === 1;
 
-      // Colours
-      const SUIT = isP1 ? '#1a7a6e' : '#8b1a1a';
-      const SUIT_L = isP1 ? '#22a090' : '#b52222';
-      const HELM = isP1 ? '#1565a8' : '#8b1010';
-      const HELM_L = isP1 ? '#1e88e5' : '#c62828';
-      const SKIN = '#f5c97a';
-      const PANTS = isP1 ? '#0d4f47' : '#5a0d0d';
-      const BOOT = '#222';
+      // Simplistic Bean Style
+      const SUIT = isP1 ? '#4ecdc4' : '#ff6b6b';
+      const VISOR = '#1a2530';
       const W2 = p.w / 2, H2 = p.h / 2;
 
       ctx.save();
       ctx.translate(cx, cy);
-      if (flash) ctx.globalAlpha = 0.55;
+      if (flash) ctx.globalAlpha = 0.5;
 
-      // ── Ground shadow ──
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
-      ctx.beginPath();
-      ctx.ellipse(0, H2 + 3, W2 * 0.9, 4, 0, 0, Math.PI * 2);
-      ctx.fill();
+      // Shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.2)';
+      ctx.beginPath(); ctx.ellipse(0, H2, W2, 4, 0, 0, Math.PI * 2); ctx.fill();
 
-      // ── Jetpack (back, always on left side of body) ──
-      {
-        const jpX = -f * (W2 + 1);
-        // Tank body
-        const jg = ctx.createLinearGradient(jpX - 4, -8, jpX + 4, -8);
-        jg.addColorStop(0, '#445566'); jg.addColorStop(1, '#667788');
-        ctx.fillStyle = jg;
-        ctx.beginPath(); ctx.roundRect(jpX - 5, -10, 10, 20, 3); ctx.fill();
-        ctx.strokeStyle = '#223344'; ctx.lineWidth = 1;
-        ctx.stroke();
-        // Strap
-        ctx.strokeStyle = '#334455'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(jpX + f * 5, -6); ctx.lineTo(f * W2 * 0.3, -6); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(jpX + f * 5, 4); ctx.lineTo(f * W2 * 0.3, 4); ctx.stroke();
-        // Nozzle
-        ctx.fillStyle = '#1a2530';
-        ctx.beginPath(); ctx.roundRect(jpX - 3, 10, 6, 5, 2); ctx.fill();
+      // Jetpack (Simplified)
+      if (p.jetpackFlame > 0 || isKey(p, 'jetpack')) {
+        ctx.fillStyle = '#445566';
+        ctx.fillRect(-f * (W2 + 4) - 4, -4, 8, 16);
         // Flame
         if (p.jetpackFlame > 0) {
-          const fSize = p.jetpackFlame * 0.6;
-          for (let fi = 0; fi < 3; fi++) {
-            const fc = ['#ff6600', '#ff9900', '#ffdd00'][fi];
-            ctx.fillStyle = fc;
-            ctx.beginPath();
-            ctx.ellipse(jpX + (fi - 1) * 1.5, 16 + fi * 2 + fSize * 0.4, 2.5 - fi * 0.4, 4 + fSize - fi * 1.5, 0, 0, Math.PI * 2);
-            ctx.fill();
-          }
+          ctx.fillStyle = '#ff9900';
+          ctx.beginPath(); ctx.ellipse(-f * (W2 + 4), 14 + p.jetpackFlame / 2, 3, 6 + p.jetpackFlame / 2, 0, 0, Math.PI * 2); ctx.fill();
         }
       }
 
-      // ── Legs ──
-      const ls = Math.sin(p.legPhase);
-      const legY = H2 * 0.1;
-      // left leg
-      ctx.fillStyle = flash ? '#fff' : PANTS;
-      ctx.beginPath(); ctx.roundRect(-W2 + 2, legY, W2 - 3, p.h * 0.32 + ls * 3, 3); ctx.fill();
-      // right leg
-      ctx.fillStyle = flash ? '#fff' : PANTS;
-      ctx.beginPath(); ctx.roundRect(1, legY, W2 - 3, p.h * 0.32 - ls * 3, 3); ctx.fill();
-      // boots
-      ctx.fillStyle = flash ? '#888' : BOOT;
-      ctx.beginPath(); ctx.roundRect(-W2 + 1, legY + p.h * 0.30 + ls * 3, W2 - 2, 5, 2); ctx.fill();
-      ctx.beginPath(); ctx.roundRect(1, legY + p.h * 0.30 - ls * 3, W2 - 2, 5, 2); ctx.fill();
+      // Simple Body Bean
+      ctx.fillStyle = SUIT;
+      ctx.beginPath(); ctx.roundRect(-W2, -H2, p.w, p.h, 12); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 2; ctx.stroke();
 
-      // ── Body / Torso ──
-      const bodyGrad = ctx.createLinearGradient(-W2, -H2, W2, -H2 * 0.1);
-      bodyGrad.addColorStop(0, flash ? '#fff' : SUIT_L);
-      bodyGrad.addColorStop(1, flash ? '#ddd' : SUIT);
-      ctx.fillStyle = bodyGrad;
-      ctx.beginPath(); ctx.roundRect(-W2, -H2, p.w, p.h * 0.55, 5); ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 1.5; ctx.stroke();
+      // Visor
+      ctx.fillStyle = VISOR;
+      const vX = f > 0 ? -2 : -W2 + 2;
+      ctx.beginPath(); ctx.roundRect(vX, -H2 + 4, W2 + 2, 10, 5); ctx.fill();
+      // Visor Shine
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.fillRect(vX + 2, -H2 + 6, 4, 2);
 
-      // Vest / chest detail
-      ctx.fillStyle = 'rgba(0,0,0,0.2)';
-      ctx.beginPath(); ctx.roundRect(-W2 + 3, -H2 + 2, p.w - 6, p.h * 0.22, 3); ctx.fill();
-      // Belt
-      ctx.fillStyle = '#8b6914';
-      ctx.fillRect(-W2 + 1, H2 * 0.08, p.w - 2, 4);
-      ctx.fillStyle = '#ffd700';
-      ctx.fillRect(-3, H2 * 0.08, 6, 4);
-
-      // ── Arm holding gun ──
-      // Upper arm
-      ctx.fillStyle = flash ? '#fff' : SUIT_L;
-      ctx.lineWidth = 7; ctx.strokeStyle = flash ? '#fff' : SUIT_L; ctx.lineCap = 'round';
-      const armOriginX = f * W2 * 0.4;
-      const armOriginY = -H2 * 0.3;
-      ctx.beginPath();
-      ctx.moveTo(armOriginX, armOriginY);
-      ctx.lineTo(armOriginX + Math.cos(ang) * 10, armOriginY + Math.sin(ang) * 10);
-      ctx.stroke();
-      // Forearm / glove
-      ctx.strokeStyle = flash ? '#fff' : SKIN; ctx.lineWidth = 6;
-      ctx.beginPath();
-      ctx.moveTo(armOriginX + Math.cos(ang) * 10, armOriginY + Math.sin(ang) * 10);
-      ctx.lineTo(armOriginX + Math.cos(ang) * 17, armOriginY + Math.sin(ang) * 17);
-      ctx.stroke();
-
-      // ── Gun ──
+      // Gun
       const wep = WEAPONS[p.weapon];
-      const gx0 = armOriginX + Math.cos(ang) * 16;
-      const gy0 = armOriginY + Math.sin(ang) * 16;
+      const armX = f * W2 * 0.5;
+      const armY = -H2 * 0.2;
       ctx.save();
-      ctx.translate(gx0, gy0);
+      ctx.translate(armX, armY);
       ctx.rotate(ang);
       drawGun(wep, flash);
       ctx.restore();
 
-      // ── Head ──
-      const headY = -H2 - 9;
-      // Neck
-      ctx.fillStyle = flash ? '#fff' : SKIN;
-      ctx.fillRect(-3, -H2 - 2, 6, 8);
-      // Head skin
-      ctx.fillStyle = flash ? '#fff' : SKIN;
-      ctx.beginPath(); ctx.ellipse(0, headY, 9, 10, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 1; ctx.stroke();
-
-      // Ear
-      ctx.fillStyle = flash ? '#fff' : SKIN;
-      ctx.beginPath(); ctx.ellipse(-f * 8, headY + 1, 3, 4, 0, 0, Math.PI * 2); ctx.fill();
-
-      // Helmet
-      const helmGrad = ctx.createLinearGradient(-9, headY - 10, 9, headY + 2);
-      helmGrad.addColorStop(0, flash ? '#fff' : HELM_L);
-      helmGrad.addColorStop(1, flash ? '#aaa' : HELM);
-      ctx.fillStyle = helmGrad;
-      ctx.beginPath();
-      ctx.arc(0, headY, 9.5, Math.PI * 0.85, Math.PI * 0.15);  // top arc
-      ctx.closePath(); ctx.fill();
-      // Helmet visor strip
-      ctx.fillStyle = 'rgba(0,0,0,0.35)';
-      ctx.beginPath();
-      ctx.ellipse(f * 2, headY + 1, 6, 3.5, f * 0.2, 0, Math.PI * 2);
-      ctx.fill();
-      // Helmet rim
-      ctx.fillStyle = flash ? '#fff' : HELM;
-      ctx.fillRect(-10, headY + 4, 20, 3);
-      ctx.beginPath(); ctx.roundRect(-10, headY + 4, 20, 3, 1); ctx.fill();
-      // Helmet shine
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
-      ctx.beginPath(); ctx.ellipse(-2, headY - 6, 4, 2.5, Math.PI * -0.2, 0, Math.PI * 2); ctx.fill();
-      // Visor goggles
-      ctx.fillStyle = flash ? '#fff' : `rgba(${isP1 ? '0,200,180' : '255,80,80'},0.85)`;
-      ctx.beginPath(); ctx.ellipse(f * 3, headY + 1, 4.5, 3, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 0.8; ctx.stroke();
-      // Goggle shine
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
-      ctx.beginPath(); ctx.ellipse(f * 2, headY, 1.5, 1, Math.PI * 0.3, 0, Math.PI * 2); ctx.fill();
-
-      // ── Reload arc ──
+      // Reload Arc
       if (p.reloadTimer > 0) {
-        const wepDef = WEAPONS[p.weapon];
-        const pct = 1 - p.reloadTimer / wepDef.reloadTime;
-        ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.arc(0, headY - 14, 8, -Math.PI / 2, Math.PI * 1.5); ctx.stroke();
+        const pct = 1 - p.reloadTimer / WEAPONS[p.weapon].reloadTime;
         ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(0, headY - 14, 8, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * pct); ctx.stroke();
+        ctx.beginPath(); ctx.arc(0, -H2 - 12, 6, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * pct); ctx.stroke();
       }
 
-      // ── Player label ──
-      ctx.fillStyle = p.color;
-      ctx.font = 'bold 9px Bangers';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-      ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 3;
-      ctx.fillText('P' + p.id, 0, headY - 24);
-      ctx.shadowBlur = 0;
+      // Label
+      ctx.fillStyle = SUIT;
+      ctx.font = 'bold 10px Bangers';
+      ctx.textAlign = 'center';
+      ctx.fillText(isP1 ? 'P1' : 'P2', 0, -H2 - 20);
 
       ctx.restore();
     }
@@ -1722,21 +1554,19 @@
         // Collect local input
         p1_input = getMyInput();
 
-        // Override isKey to use synchronized input
+        // Authoritative physics
         const originalIsKey = window.isKey;
         window.isKey = (p, action) => {
           const inp = p.id === 1 ? p1_input : p2_input;
           return !!inp[action];
         };
 
-        // Host runs physics
         updatePlayer(p1, p2);
         updatePlayer(p2, p1);
         updateBullets();
         updatePickups();
         updateParticles();
 
-        // Restore isKey
         window.isKey = originalIsKey;
 
         // Broadcast state
@@ -1753,11 +1583,26 @@
           rtcChan.send(JSON.stringify(state));
         }
       } else {
-        // Guest sends input to host
+        // --- Client-Side Prediction for Guest ---
+        const myPlayer = p2;
+        const otherPlayer = p1;
+        
+        // Predict local movement instantly
+        const localInput = getMyInput();
+        const originalIsKey = window.isKey;
+        window.isKey = (p, action) => {
+          if (p.id === 2) return !!localInput[action];
+          return false; // Don't predict other player
+        };
+        
+        updatePlayer(myPlayer, otherPlayer);
+        window.isKey = originalIsKey;
+
+        // Send input to host
         if (rtcChan && rtcChan.readyState === 'open') {
-          rtcChan.send(JSON.stringify({ type: 'input', input: getMyInput() }));
+          rtcChan.send(JSON.stringify({ type: 'input', input: localInput }));
         }
-        // Guest just updates cosmetic particles locally or waits for state
+        
         updateParticles();
       }
 
