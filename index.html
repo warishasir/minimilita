@@ -458,8 +458,8 @@
         </div>
       </div>
       <div id="controls">
-        <div class="ctrl-box">A/D: Move | W: Jump<br>G: Jetpack | F: Shoot | R: Reload</div>
-        <div class="ctrl-box">←/→: Move | ↑: Jump<br>K: Jetpack | L: Shoot | ;: Reload</div>
+        <div class="ctrl-box">WASD: Move | W: Jump<br>E: Jetpack | F: Shoot | R: Reload</div>
+        <div class="ctrl-box">WASD: Move | W: Jump<br>E: Jetpack | F: Shoot | R: Reload</div>
       </div>
     </div>
     /div>
@@ -484,15 +484,9 @@
           <button class="lobby-btn join-btn" onclick="joinRoom()">🔗 JOIN</button>
         </div>
       </div>
-      <div class="controls-info" style="margin-top:20px;">
-        <div class="ctrl-card p1-ctrl">
-          <div class="ctrl-title">PLAYER 1</div>
-          A/D - Move<br>W - Jump<br>G - Jetpack<br>F - Shoot<br>R - Reload<br>Q - Weapon
-        </div>
-        <div class="ctrl-card p2-ctrl">
-          <div class="ctrl-title">PLAYER 2</div>
-          ←/→ - Move<br>↑ - Jump<br>K - Jetpack<br>L - Shoot<br>; - Reload<br>, - Weapon
-        </div>
+      <div class="ctrl-card p1-ctrl" style="width:100%">
+        <div class="ctrl-title">CONTROLS (HOST & JOINER)</div>
+        W/A/S/D - Move & Jump<br>E - Jetpack<br>F - Shoot<br>R - Reload<br>Q - Swap Weapon
       </div>
     </div>
   </div>
@@ -640,11 +634,12 @@
     let frame = 0;
 
     function initPlayers() {
+      // Both players now use WASD/E/F for P2P play
       p1 = createPlayer(1, 120, 450, '#4ecdc4', {
-        left: 'KeyA', right: 'KeyD', jump: 'KeyW', jetpack: 'KeyG', fire: 'KeyF', reload: 'KeyR', weapon: 'KeyQ'
+        left: 'KeyA', right: 'KeyD', jump: 'KeyW', jetpack: 'KeyE', fire: 'KeyF', reload: 'KeyR', weapon: 'KeyQ'
       }, 1);
       p2 = createPlayer(2, 760, 450, '#ff6b6b', {
-        left: 'ArrowLeft', right: 'ArrowRight', jump: 'ArrowUp', jetpack: 'KeyK', fire: 'KeyL', reload: 'Semicolon', weapon: 'Comma'
+        left: 'KeyA', right: 'KeyD', jump: 'KeyW', jetpack: 'KeyE', fire: 'KeyF', reload: 'KeyR', weapon: 'KeyQ'
       }, -1);
       p1.aimAngle = 0;
       p2.aimAngle = Math.PI;
@@ -713,8 +708,11 @@
     }
 
     document.addEventListener('keydown', e => {
+      // Don't prevent default if user is typing in the lobby room code
+      if (e.target.tagName === 'INPUT') return;
+
       keys[e.code] = true;
-      const prevent = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyL', 'KeyK', 'Semicolon', 'Comma', 'KeyF', 'KeyG', 'KeyR', 'KeyQ'];
+      const prevent = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF', 'KeyG', 'KeyR', 'KeyQ', 'KeyL', 'KeyK', 'Semicolon', 'Comma'];
       if (prevent.includes(e.code)) e.preventDefault();
     });
     document.addEventListener('keyup', e => {
@@ -1586,7 +1584,7 @@
         // --- Client-Side Prediction for Guest ---
         const myPlayer = p2;
         const otherPlayer = p1;
-        
+
         // Predict local movement instantly
         const localInput = getMyInput();
         const originalIsKey = window.isKey;
@@ -1594,7 +1592,7 @@
           if (p.id === 2) return !!localInput[action];
           return false; // Don't predict other player
         };
-        
+
         updatePlayer(myPlayer, otherPlayer);
         window.isKey = originalIsKey;
 
@@ -1602,7 +1600,7 @@
         if (rtcChan && rtcChan.readyState === 'open') {
           rtcChan.send(JSON.stringify({ type: 'input', input: localInput }));
         }
-        
+
         updateParticles();
       }
 
