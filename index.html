@@ -601,7 +601,7 @@
     // ============ PLAYER ============
     function createPlayer(id, x, y, color, keys, aimFacing) {
       return {
-        id, x, y, w: 26, h: 36,
+        id, x, y, w: 26, h: 36, targetX: x, targetY: y,
         vx: 0, vy: 0,
         color,
         hp: MAX_HP,
@@ -761,6 +761,24 @@
       // Move
       p.x += p.vx;
       p.y += p.vy;
+
+      // Lerp remote player to smooth out lag
+      if (p.id !== myPlayerNum) {
+        const dx = p.targetX - p.x;
+        const dy = p.targetY - p.y;
+        if (Math.abs(dx) > 100 || Math.abs(dy) > 100) {
+          // Teleport if too far out of sync (e.g. respawn)
+          p.x = p.targetX;
+          p.y = p.targetY;
+        } else {
+          // Smoothly glide to the target
+          p.x += dx * 0.3;
+          p.y += dy * 0.3;
+        }
+      } else {
+        p.targetX = p.x;
+        p.targetY = p.y;
+      }
 
       // Resolve collision
       resolvePlayerCollision(p);
@@ -1484,8 +1502,8 @@
           if (data.type === 'guest_state') {
             // Trust the guest's position, aim, and movement state exactly
             if (p2 && !p2.dead) {
-              p2.x = data.state.x;
-              p2.y = data.state.y;
+              p2.targetX = data.state.x;
+              p2.targetY = data.state.y;
               p2.vx = data.state.vx;
               p2.vy = data.state.vy;
               p2.facing = data.state.facing;
@@ -1536,8 +1554,22 @@
           local.ammo = remote.ammo;
           local.flashTimer = remote.flashTimer;
         } else {
-          // If it's the other player, accept everything
-          Object.assign(local, remote);
+          // If it's the other player, stash x/y in targetX/Y for lerp
+          local.targetX = remote.x;
+          local.targetY = remote.y;
+          local.vx = remote.vx;
+          local.vy = remote.vy;
+          local.hp = remote.hp;
+          local.fuel = remote.fuel;
+          local.dead = remote.dead;
+          local.kills = remote.kills;
+          local.weapon = remote.weapon;
+          local.ammo = remote.ammo;
+          local.facing = remote.facing;
+          local.aimAngle = remote.aimAngle;
+          local.flashTimer = remote.flashTimer;
+          local.reloadTimer = remote.reloadTimer;
+          local.fireTimer = remote.fireTimer;
         }
       }
       applyP(p1, state.p1, false); // Host is p1, so Guest accepts all of it
